@@ -11,8 +11,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _dobController = TextEditingController(); // Date of Birth
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  String? _selectedGender;
+
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _agreeToTerms = false;
@@ -21,21 +26,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _dobController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
+  void _selectDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      _dobController.text = "${picked.toLocal()}".split(' ')[0];
+    }
+  }
+
   void _register() {
     if (_formKey.currentState!.validate() && _agreeToTerms) {
-      // TODO: Implement registration logic
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Processing Registration...')),
       );
-
-      // Simulasi registrasi berhasil
+      //simulasi registrasi berhasil
       print('Name: ${_nameController.text}');
       print('Email: ${_emailController.text}');
+      print('DOB: ${_dobController.text}');
+      print('Gender: $_selectedGender');
+      print('Phone: ${_phoneController.text}');
+      print('Address: ${_addressController.text}');
       print('Password: ${_passwordController.text}');
     } else if (!_agreeToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -45,8 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _navigateToLogin() {
-    // Kembali ke halaman login
-    Navigator.pop(context);
+    Navigator.pop(context); //kembali ke halaman login
   }
 
   @override
@@ -58,12 +79,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Icon atau Gambar
                 Icon(
@@ -73,7 +93,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Judul Register
+                 // Judul Register
                 Text(
                   'Register',
                   textAlign: TextAlign.center,
@@ -92,202 +112,210 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 30),
 
-                // Form Register
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      // Name Field
-                      TextFormField(
-                        controller: _nameController,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          hintText: 'Enter your full name',
-                          prefixIcon: const Icon(Icons.person_outline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                // Full Name
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Name',
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter your name' : null,
+                ),
+                const SizedBox(height: 20),
 
-                      // Email Field
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Enter your email',
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          // Simple email validation
-                          if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                // Email
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    prefixIcon: Icon(Icons.email),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) return 'Please enter your email';
+                    if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
 
-                      // Password Field
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          hintText: 'Enter your password',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a password';
-                          }
-                          if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                // Date of Birth
+                TextFormField(
+                  controller: _dobController,
+                  readOnly: true,
+                  onTap: _selectDate,
+                  decoration: const InputDecoration(
+                    labelText: 'Date of Birth',
+                    prefixIcon: Icon(Icons.calendar_today),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please select your birth date' : null,
+                ),
+                const SizedBox(height: 20),
 
-                      // Confirm Password Field
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: !_isConfirmPasswordVisible,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          hintText: 'Confirm your password',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isConfirmPasswordVisible
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isConfirmPasswordVisible =
-                                    !_isConfirmPasswordVisible;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                // Gender
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: 'Gender',
+                    prefixIcon: Icon(Icons.wc),
+                  ),
+                  value: _selectedGender,
+                  items: const [
+                    DropdownMenuItem(value: 'Male', child: Text('Male')),
+                    DropdownMenuItem(value: 'Female', child: Text('Female')),
+                    DropdownMenuItem(value: 'Other', child: Text('Other')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? 'Please select your gender' : null,
+                ),
+                const SizedBox(height: 20),
 
-                      // Terms and Conditions
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _agreeToTerms,
-                            onChanged: (value) {
-                              setState(() {
-                                _agreeToTerms = value ?? false;
-                              });
-                            },
-                          ),
-                          Expanded(
-                            child: RichText(
-                              text: TextSpan(
-                                text: 'I agree to the ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color.fromARGB(137, 255, 0, 0),
-                                  fontSize: 18,
-                                ),
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: 'Terms & Conditions',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color.fromARGB(251, 1, 2, 0),
-                                    ),
-                                  ),
-                                ],
+                // Phone Number
+                TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter your phone number' : null,
+                ),
+                const SizedBox(height: 20),
+
+                // Address
+                TextFormField(
+                  controller: _addressController,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                    labelText: 'Address',
+                    prefixIcon: Icon(Icons.home),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter your address' : null,
+                ),
+                const SizedBox(height: 20),
+
+                // Password
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: !_isPasswordVisible,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) return 'Please enter a password';
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Confirm Password
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: !_isConfirmPasswordVisible,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPasswordVisible =
+                              !_isConfirmPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Terms and Conditions
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _agreeToTerms,
+                      onChanged: (value) {
+                        setState(() {
+                          _agreeToTerms = value ?? false;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          text: 'I agree to the ',
+                          children: [
+                            TextSpan(
+                              text: 'Terms & Conditions',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-
-                      // Register Button
-                      ElevatedButton(
-                        onPressed: _register,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'REGISTER',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
 
-                      // Login Option
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Already have an account?"),
-                          TextButton(
-                            onPressed: _navigateToLogin,
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                // Register Button
+                ElevatedButton(
+                  onPressed: _register,
+                  child: const Text('REGISTER'),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Login Option
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Already have an account?"),
+                    TextButton(
+                      onPressed: _navigateToLogin,
+                      child: const Text("Login"),
+                    ),
+                  ],
                 ),
               ],
             ),
