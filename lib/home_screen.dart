@@ -21,12 +21,16 @@ class _HomeScreenState extends State<HomeScreen> {
     const DashboardPage(),
     // Profile page
     const ProfilePage(),
+    // Messages page
+    const MessagesPage(),
+    // Notifications page
+    const NotificationsPage(),
     // Settings page
     const SettingsPage(),
   ];
 
   // Navigation titles
-  final List<String> _titles = ["Dashboard", "Profile", "Settings"];
+  final List<String> _titles = ["Dashboard", "Profile", "Messages", "Notifications", "Calls", "Settings"];
 
   void _onDrawerItemTapped(int index) {
     setState(() {
@@ -75,16 +79,29 @@ class _HomeScreenState extends State<HomeScreen> {
             // Profile option
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Profil'),
+              title: const Text('Profile'),
               selected: _selectedIndex == 1,
               onTap: () => _onDrawerItemTapped(1),
             ),
             // Settings option
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Setting'),
+              leading: const Icon(Icons.message),
+              title: const Text('Messages'),
               selected: _selectedIndex == 2,
               onTap: () => _onDrawerItemTapped(2),
+            ),
+            // Settings option
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Notifications'),
+              selected: _selectedIndex == 3,
+              onTap: () => _onDrawerItemTapped(3),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              selected: _selectedIndex == 4,
+              onTap: () => _onDrawerItemTapped(4),
             ),
             // Divider
             const Divider(),
@@ -368,6 +385,57 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// Messages Page
+class MessagesPage extends StatelessWidget {
+  const MessagesPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final messages = [
+      {'sender': 'Admin', 'message': 'Selamat datang di aplikasi kami!'},
+      {'sender': 'Sistem', 'message': 'Akun Anda telah diperbarui.'},
+    ];
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        final msg = messages[index];
+        return ListTile(
+          leading: const Icon(Icons.message),
+          title: Text(msg['sender']!),
+          subtitle: Text(msg['message']!),
+        );
+      },
+    );
+  }
+}
+
+// Notifications Page
+class NotificationsPage extends StatelessWidget {
+  const NotificationsPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final notifications = [
+      'Update aplikasi terbaru telah tersedia.',
+      'Jangan lupa lengkapi profil Anda.',
+    ];
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: notifications.length,
+      separatorBuilder: (context, index) => const Divider(),
+      itemBuilder: (context, index) {
+        return ListTile(
+          leading: const Icon(Icons.notifications),
+          title: Text(notifications[index]),
+        );
+      },
     );
   }
 }
