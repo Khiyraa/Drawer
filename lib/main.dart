@@ -1,3 +1,4 @@
+import 'package:drawer/forgot_password.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeScreen(),
+         '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
     );
   }
