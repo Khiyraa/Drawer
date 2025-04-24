@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -179,15 +182,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 20),
 
                 // Phone Number
-                TextFormField(
+                 TextFormField(
                   controller: _phoneController,
-                  keyboardType: TextInputType.phone,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(
+                      13,
+                    ), // misal maksimal 13 digit
+                  ],
                   decoration: const InputDecoration(
                     labelText: 'Phone Number',
                     prefixIcon: Icon(Icons.phone),
+                    hintText: 'Enter numbers only',
                   ),
-                  validator: (value) =>
-                      value!.isEmpty ? 'Please enter your phone number' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your phone number';
+                    }
+                    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                      return 'Phone number must contain digits only';
+                    }
+                    if (value.length < 8) {
+                      return 'Phone number must be at least 8 digits';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 20),
 
